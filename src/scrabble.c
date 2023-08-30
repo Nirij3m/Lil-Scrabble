@@ -69,38 +69,6 @@ bool wordValid(struct NodeTrie* trie, char* word, char* deck){
     else return false;
 }
 
-/*void findLongestWordInTrie(struct NodeTrie* trie, int wordedDeck[26], char currentWord[DECK_SIZE], char* longestWord, struct NodeTrie* originalTrie) {
-    // Vérifier si le mot actuel est plus long que le plus long mot trouvé jusqu'à présent
-    if (strlen(currentWord) > strlen(longestWord) && belongs(originalTrie, currentWord)) {
-        memset(longestWord, 0, strlen(longestWord));
-        strncpy(longestWord, currentWord, 7);
-        longestWord[7] = '\0'; // Assurer la terminaison correcte
-    }
-
-    // Explorer toutes les lettres possibles dans le deck
-    for (int i = 0; i < MAX_SIZE; i++) {
-        if (wordedDeck[i] > 0 && trie->alphabets[i] != NULL) {
-            char nextLetter = i + 'a';
-
-            // Créer une copie locale du wordedDeck pour cet appel récursif
-            int wordedDeckCopy[26];
-            memcpy(wordedDeckCopy, wordedDeck, sizeof(wordedDeckCopy));
-
-            // Utiliser la lettre du wordedDeck
-            wordedDeckCopy[i]--;
-
-            // Construire le prochain mot en ajoutant la lettre
-            char newWord[8] = "";
-            snprintf(newWord, sizeof(newWord), "%s%c", currentWord, nextLetter);
-
-            findLongestWordInTrie(trie->alphabets[i], wordedDeckCopy, newWord, longestWord, originalTrie);
-        }
-    }
-
-    //I did not found a valid word and used all the letters from the deck
-    memset(currentWord, 0, strlen(currentWord));
-    return;
-}*/
 void printDeck(char deck[DECK_SIZE]){
     for(int i = 0; i < DECK_SIZE; i++){
         printf("%c-", deck[i]);
@@ -119,11 +87,57 @@ void findLongestWordInTrie(struct NodeTrie* trie, int wordedDeck[26], char curre
     if (allLettersExhausted) {
         return;
     }
-
     // Vérifier si le mot actuel est plus long que le plus long mot trouvé jusqu'à présent
     if (strlen(currentWord) > strlen(longestWord) && belongs(originalTrie, currentWord)) {
         strncpy(longestWord, currentWord, DECK_SIZE);
         longestWord[DECK_SIZE] = '\0'; // Assurer la terminaison correcte
+    }
+    // Explorer toutes les lettres possibles dans le deck
+    for (int i = 0; i < MAX_SIZE; i++) {
+        if (wordedDeck[i] > 0 && trie->alphabets[i] != NULL) {
+            char nextLetter = i + 'a';
+
+            // Utiliser la lettre du wordedDeck
+            wordedDeck[i]--;
+
+            // Construire le prochain mot en ajoutant la lettre
+            char newWord[DECK_SIZE] ="";
+            snprintf(newWord, sizeof(newWord), "%s%c", currentWord, nextLetter);
+
+            // Appel récursif pour explorer le nœud suivant
+            findLongestWordInTrie(trie->alphabets[i], wordedDeck, newWord, longestWord, originalTrie);
+
+            // Restaurer le wordedDeck après l'appel récursif
+            wordedDeck[i]++;
+        }
+    }
+}
+void findHighestValueWordInTrie(struct NodeTrie* trie, int wordedDeck[26], char currentWord[DECK_SIZE], char* highestValueWord, int* highestValue, struct NodeTrie* originalTrie) {
+    // Si toutes les lettres du deck sont épuisées, sortir de la recherche
+    bool allLettersExhausted = true;
+    for (int i = 0; i < MAX_SIZE; i++) {
+        if (wordedDeck[i] > 0) {
+            allLettersExhausted = false;
+            break;
+        }
+    }
+    if (allLettersExhausted) {
+        return;
+    }
+
+    // Calculer la valeur actuelle du mot en cours de construction
+    int currentWordValue = 0;
+    for (int i = 0; i < strlen(currentWord); i++) {
+        if (trie->alphabets[currentWord[i] - 'a'] != NULL) {
+            currentWordValue += trie->alphabets[currentWord[i] - 'a']->value;
+        }
+    }
+
+    // Vérifier si le mot actuel a une valeur plus élevée que le plus haut mot trouvé jusqu'à présent
+    if (currentWordValue > *highestValue && belongs(originalTrie, currentWord)) {
+        *highestValue = currentWordValue;
+        strncpy(highestValueWord, currentWord, DECK_SIZE);
+        highestValueWord[DECK_SIZE] = '\0'; // Assurer la terminaison correcte
     }
 
     // Explorer toutes les lettres possibles dans le deck
@@ -135,11 +149,11 @@ void findLongestWordInTrie(struct NodeTrie* trie, int wordedDeck[26], char curre
             wordedDeck[i]--;
 
             // Construire le prochain mot en ajoutant la lettre
-            char newWord[DECK_SIZE];
+            char newWord[DECK_SIZE] = "";
             snprintf(newWord, sizeof(newWord), "%s%c", currentWord, nextLetter);
 
             // Appel récursif pour explorer le nœud suivant
-            findLongestWordInTrie(trie->alphabets[i], wordedDeck, newWord, longestWord, originalTrie);
+            findHighestValueWordInTrie(trie->alphabets[i], wordedDeck, newWord, highestValueWord, highestValue, originalTrie);
 
             // Restaurer le wordedDeck après l'appel récursif
             wordedDeck[i]++;

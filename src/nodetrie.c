@@ -7,6 +7,10 @@ extern int valueScrabble[MAX_SIZE];
 
 struct NodeTrie* createEmptyNodeTrie(int value){
     struct NodeTrie* trie = malloc(sizeof(struct NodeTrie));
+    if(trie == NULL){
+        printf("Malloc NodeTrie Error");
+        return NULL;
+    }
     trie->value = value;
     memset(trie->alphabets, 0, MAX_SIZE);
     trie->isWord = false;
