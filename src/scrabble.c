@@ -5,6 +5,20 @@
 #include "scrabble.h"
 extern int valueScrabble[MAX_SIZE];
 
+void toLowerString(char* string){
+    unsigned int len = strlen(string);
+    for(unsigned int i = 0; i < len; i++){
+        string[i] = tolower(string[i]);
+    }
+}
+void toUpperString(char* string){
+    unsigned int len = strlen(string);
+    for(unsigned int i = 0; i < len; i++){
+        string[i] = toupper(string[i]);
+    }
+}
+
+
 int valueOfWord(char* word){
     unsigned int len = strlen(word);
     int value = 0;
@@ -40,15 +54,20 @@ char* pickLetters(char* deck){
     srand(time(NULL));
 
     for(int i = 0; i < DECK_SIZE; i++){
-        int r = rand() % 93; //102 to fit in the scrabbleAlphabet
+        int r = rand() % 93; //93 to fit in the scrabbleAlphabet
         deck[i] = tolower(scrabbleAlphabet[r]); //pick a random letter in the scrabbleAlphabet and put it in the deck
         //printf("%c", deck[i]);
     }
     return deck;
 }
 bool wordValid(struct NodeTrie* trie, char* word, char* deck){
+    char correctDeck[DECK_SIZE] = "";
+    strncpy(correctDeck, deck, DECK_SIZE);
     bool exists = belongs(trie, word);
-    int* wordedArray = wordToArray(deck);
+    if(!exists){
+        return false;
+    }
+    int* wordedArray = wordToArray(correctDeck);
     unsigned int len = strlen(word);
 
     for(unsigned int i = 0; i < len; i++){
@@ -73,6 +92,7 @@ void printDeck(char deck[DECK_SIZE]){
     for(int i = 0; i < DECK_SIZE; i++){
         printf("%c-", deck[i]);
     }
+    printf("\n");
 }
 
 void findLongestWordInTrie(struct NodeTrie* trie, int wordedDeck[26], char currentWord[DECK_SIZE], char* longestWord, struct NodeTrie* originalTrie) {
@@ -136,6 +156,7 @@ void findHighestValueWordInTrie(struct NodeTrie* trie, int wordedDeck[26], char 
     // Vérifier si le mot actuel a une valeur plus élevée que le plus haut mot trouvé jusqu'à présent
     if (currentWordValue > *highestValue && belongs(originalTrie, currentWord)) {
         *highestValue = currentWordValue;
+        memset(highestValueWord, 0, strlen(highestValueWord));
         strncpy(highestValueWord, currentWord, DECK_SIZE);
         highestValueWord[DECK_SIZE] = '\0'; // Assurer la terminaison correcte
     }
@@ -157,10 +178,10 @@ void findHighestValueWordInTrie(struct NodeTrie* trie, int wordedDeck[26], char 
 
             // Restaurer le wordedDeck après l'appel récursif
             wordedDeck[i]++;
+
         }
     }
 }
-
 
 
 

@@ -4,3 +4,5 @@ project(Lil_Scrabble C)
 set(CMAKE_C_STANDARD 99)
 
 add_executable(Lil_Scrabble main.c src/nodetrie.c src/nodetrie.h src/scrabble.c src/scrabble.h)
+target_link_libraries(Lil_Scrabble PRIVATE ncurses menu)
+
