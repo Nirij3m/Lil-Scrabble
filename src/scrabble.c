@@ -20,6 +20,9 @@ void toUpperString(char* string){
 
 
 int valueOfWord(char* word){
+    if(word == NULL){
+        return 0;
+    }
     unsigned int len = strlen(word);
     int value = 0;
     for(unsigned int i = 0; i < len; i++){
@@ -28,6 +31,7 @@ int valueOfWord(char* word){
     return value;
 }
 int* wordToArray(char* word){
+    toLowerString(word);
     int* array = malloc(26*sizeof(int));
     for(int j = 0; j < 26; j++){
         array[j] = 0;
@@ -61,13 +65,12 @@ char* pickLetters(char* deck){
     return deck;
 }
 bool wordValid(struct NodeTrie* trie, char* word, char* deck){
-    char correctDeck[DECK_SIZE] = "";
-    strncpy(correctDeck, deck, DECK_SIZE);
     bool exists = belongs(trie, word);
     if(!exists){
+        printw("%s", " Word doesn't exists in Scrabble!");
         return false;
     }
-    int* wordedArray = wordToArray(correctDeck);
+    int* wordedArray = wordToArray(deck);
     unsigned int len = strlen(word);
 
     for(unsigned int i = 0; i < len; i++){
@@ -85,7 +88,10 @@ bool wordValid(struct NodeTrie* trie, char* word, char* deck){
     if(exists){
         return true;
     }
-    else return false;
+    else{
+        printw("%s", "Word invalid!");
+        return false;
+    }
 }
 
 void printDeck(char deck[DECK_SIZE]){
@@ -104,7 +110,7 @@ void findLongestWordInTrie(struct NodeTrie* trie, int wordedDeck[26], char curre
             break;
         }
     }
-    if (allLettersExhausted) {
+    if (allLettersExhausted){
         return;
     }
     // Vérifier si le mot actuel est plus long que le plus long mot trouvé jusqu'à présent

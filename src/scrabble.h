@@ -6,6 +6,7 @@
 #define LIL_SCRABBLE_SCRABBLE_H
 #include "nodetrie.h"
 #include <ctype.h>
+#include <ncurses.h>
 #define DECK_SIZE 7
 int valueOfWord(char* word);
 int* wordToArray(char* word); //Translate the word to an array contaning the number of time the letters of the word repete themself

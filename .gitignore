@@ -8,7 +8,7 @@
 *.so
 cmake-build-debug
 *.idea
-CMakeLists
+CMakeLists.txt
 
 # Packages #
 ############
