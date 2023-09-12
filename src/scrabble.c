@@ -77,6 +77,7 @@ bool wordValid(struct NodeTrie* trie, char* word, char* deck){
         int index = word[i] - 'a';
         if(wordedArray[index] == 0){ //Your word contains a letter which is not in the deck
             free(wordedArray);
+            printw("%s", "                    Word invalid!");
             return false;
         }
         else{ //the letter exists in the deck
@@ -85,13 +86,8 @@ bool wordValid(struct NodeTrie* trie, char* word, char* deck){
     }
     //All the letters choosen belongs to the deck
     free(wordedArray);
-    if(exists){
-        return true;
-    }
-    else{
-        printw("%s", "Word invalid!");
-        return false;
-    }
+    return true;
+
 }
 
 void printDeck(char deck[DECK_SIZE]){

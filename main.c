@@ -1,5 +1,5 @@
 
-#include</mnt/c/Users/nirin/Documents/GitHub/Lil-Scrabble/src/scrabble.h>
+#include<scrabble.h>
 #include <unistd.h>
 #include <ncurses.h>
 #include <stdbool.h>
@@ -144,6 +144,10 @@ void playGame(struct NodeTrie* newDico, int uGameScore, int cGameScore, bool end
     struct NodeTrie* dico;
     if(newDico == NULL){
         dico = createDico("dicoFR.txt");
+        if(dico == NULL){
+            printf("Error openning the file!");
+            return;
+        }
     }
     char userInput[256] = ""; // input's buffer
     char computerWord[DECK_SIZE+1] = "";
@@ -181,8 +185,8 @@ void playGame(struct NodeTrie* newDico, int uGameScore, int cGameScore, bool end
     findLongestWordInTrie(dico, wordedDeck, currentWord, computerWord, dico);
     free(wordedDeck);
     //Score init value
-    char userScore[2];
-    char computerScore[2];
+    char userScore[2] = "";
+    char computerScore[2] = "";
     int valueUserWord = valueOfWord(userInput);
     int valueComputerWord = valueOfWord(computerWord);
     sprintf(userScore, "%d", valueUserWord);
@@ -222,7 +226,6 @@ void playGame(struct NodeTrie* newDico, int uGameScore, int cGameScore, bool end
             deleteNodeTrie(&dico);
             delwin(inputWin);
             clear();
-            endwin();
             return;
         }
     }
@@ -233,6 +236,7 @@ int main(){
     int uGameScore = 0;
     int cGameScore = 0;
     playGame(NULL, uGameScore, cGameScore, false);
+    endwin();
     return 0;
 }
 
