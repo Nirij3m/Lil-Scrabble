@@ -69,7 +69,7 @@ WINDOW* gameInput(struct NodeTrie* dico, char* userInput, char* mainDeck, int ma
         // Rafraîchir l'écran
         mvprintw(0, 1, "- Press F1 to get the answer -");
         int ch1 = getch();
-        if(ch1 == 112){ //User want the answer
+        if(ch1 == KEY_F(1){ //User want the answer
             memset(userInput, 0, userInputLength);
             return inputWin;
         }
