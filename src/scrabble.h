@@ -18,5 +18,7 @@ void findHighestValueWordInTrie(struct NodeTrie* trie, int wordedDeck[26], char 
 void printDeck(char deck[DECK_SIZE]);
 void toLowerString(char string[]);
 void toUpperString(char string[]);
+void removeSchar(char* str);
+void removeSpaces(char *str);
 
 #endif //LIL_SCRABBLE_SCRABBLE_H

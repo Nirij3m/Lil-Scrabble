@@ -67,7 +67,7 @@ char* pickLetters(char* deck){
 bool wordValid(struct NodeTrie* trie, char* word, char* deck){
     bool exists = belongs(trie, word);
     if(!exists){
-        printw("%s", " Word doesn't exists in Scrabble!");
+        printw("%s%s%s%s"," \"", word, "\""," doesn't exist in Scrabble!");
         return false;
     }
     int* wordedArray = wordToArray(deck);
@@ -77,7 +77,7 @@ bool wordValid(struct NodeTrie* trie, char* word, char* deck){
         int index = word[i] - 'a';
         if(wordedArray[index] == 0){ //Your word contains a letter which is not in the deck
             free(wordedArray);
-            printw("%s", "                  Word invalid!");
+            printw("%s%s%s%s%s","                                 ", "\"",word, "\""," invalid!");
             return false;
         }
         else{ //the letter exists in the deck
@@ -181,6 +181,36 @@ void findHighestValueWordInTrie(struct NodeTrie* trie, int wordedDeck[26], char 
             // Restaurer le wordedDeck après l'appel récursif
             wordedDeck[i]++;
 
+        }
+    }
+}
+
+void removeSpaces(char *str)
+{
+    if(str == NULL){
+        return;
+    }
+    int count = 0;
+    for (int i = 0; str[i]; i++)
+        if (str[i] != ' ')
+            str[count++] = str[i];
+    str[count] = '\0';
+}
+
+void removeSchar(char* str){
+    if(str == NULL){
+        return;
+    }
+    int i, j;
+    for(i = 0; str[i] != '\0'; ++i)
+    {
+        while (!( (str[i] >= 'a' && str[i] <= 'z') || (str[i] >= 'A' && str[i] <= 'Z') || str[i] == '\0') )
+        {
+            for(j = i; str[j] != '\0'; ++j)
+            {
+                str[j] = str[j+1];
+            }
+            str[j] = '\0';
         }
     }
 }

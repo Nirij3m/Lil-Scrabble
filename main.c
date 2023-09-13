@@ -1,5 +1,5 @@
 
-#include</mnt/c/Users/nirin/Documents/GitHub/Lil-Scrabble/src/scrabble.h>
+#include<scrabble.h>
 #include <ncurses.h>
 
 
@@ -69,7 +69,7 @@ WINDOW* gameInput(struct NodeTrie* dico, char* userInput, char* mainDeck, int ma
         // Rafraîchir l'écran
         mvprintw(0, 1, "- Press F1 to get the answer -");
         int ch1 = getch();
-        if(ch1 == KEY_F(1){ //User want the answer
+        if(ch1 == KEY_F(1)){ //User want the answer
             memset(userInput, 0, userInputLength);
             return inputWin;
         }
@@ -105,6 +105,7 @@ WINDOW* gameInput(struct NodeTrie* dico, char* userInput, char* mainDeck, int ma
                         toLowerString(userInput);
                         toLowerString(mainDeck);
                         if(wordValid(dico, userInput, mainDeck)){ //Etapes de validation
+                            userInput[userInputLength] = '\0';
                             end = 1; //BREAK THE LOOP
                             break;
                         }
@@ -145,14 +146,11 @@ void playGame(struct NodeTrie* dico, int uGameScore, int cGameScore) {
         char computerWord[DECK_SIZE + 1] = "";
         char mainDeck[DECK_SIZE] = "";
         char currentWord[DECK_SIZE] = "";
-
-        char uGameScoreChar[2] = "";
-        char cGameScoreChar[2] = "";
-        char userScore[2] = "";
-        char computerScore[2] = "";
-
+        char uGameScoreChar[3] = "";
+        char cGameScoreChar[3] = "";
+        char userScore[3] = "";
+        char computerScore[3] = "";
         int *wordedDeck = 0;
-
         int valueUserWord = 0;
         int valueComputerWord = 0;
         unsigned int userLen = 0;
@@ -165,8 +163,8 @@ void playGame(struct NodeTrie* dico, int uGameScore, int cGameScore) {
 
         sprintf(uGameScoreChar, "%d", uGameScore);
         sprintf(cGameScoreChar, "%d", cGameScore);
-        uGameScoreChar[1] = '\0';
-        cGameScoreChar[1] = '\0';
+        uGameScoreChar[2] = '\0';
+        cGameScoreChar[2] = '\0';
         // Draws computer's label
         clear();
         mvprintw(4, centerCol, "Ordinateur");
@@ -178,25 +176,25 @@ void playGame(struct NodeTrie* dico, int uGameScore, int cGameScore) {
         // Draws user's label
         mvprintw(17, centerCol, "Vous");
         drawLine(18, centerCol, 10);
-
         //Input text
         mvprintw(inputTextRow, inputTextCol, "Entrer votre mot:");
         refresh();
-
 
         //Fills the computer's answer
         wordedDeck = wordToArray(mainDeck);
             WINDOW *inputWin = gameInput(dico, userInput, mainDeck, maxRow, maxCol, inputTextRow, inputTextCol, centerCol,uGameScoreChar, cGameScoreChar); //takes the user's input and checks its validity
             findLongestWordInTrie(dico, wordedDeck, currentWord, computerWord, dico);
         free(wordedDeck);
+            removeSchar(userInput); //clear potential segfault input
+            removeSpaces(userInput);//clear potential segfault input
 
         //Score values
         valueUserWord = valueOfWord(userInput);
         valueComputerWord = valueOfWord(computerWord);
         sprintf(userScore, "%d", valueUserWord);
         sprintf(computerScore, "%d", valueComputerWord);
-        userScore[1] = '\0';
-        computerScore[1] = '\0';
+        userScore[2] = '\0';
+        computerScore[2] = '\0';
         userLen = strlen(userInput);
         computerLen = strlen(computerWord);
 
@@ -245,13 +243,11 @@ void playGame(struct NodeTrie* dico, int uGameScore, int cGameScore) {
 }
 
 int main(){
-
     struct NodeTrie* dico = createDico("dicoFR.txt");
     int uGameScore = 0;
     int cGameScore = 0;
     playGame(dico, uGameScore, cGameScore);
     deleteNodeTrie(&dico);
-
     return 0;
 }
 
