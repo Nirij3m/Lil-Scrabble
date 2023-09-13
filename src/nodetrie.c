@@ -72,7 +72,8 @@ struct NodeTrie* createDico(char* dicoName){
 
     while(!feof(dico)){
         fgets(word, MAX_BUFFER, dico); //read line by line the dico
-        word[strcspn(word, "\r")] = '\0'; //retire l'éventuel "\n"
+        word[strlen(word)] = '\0';//remove the \n
+        word[strcspn(word, "\r")] = '\0'; //remove carriage return
         insertWord(trie, word);
     }
     fclose(dico);

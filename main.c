@@ -1,8 +1,7 @@
 
-#include<scrabble.h>
-#include <unistd.h>
+#include</mnt/c/Users/nirin/Documents/GitHub/Lil-Scrabble/src/scrabble.h>
 #include <ncurses.h>
-#include <stdbool.h>
+
 
 int valueScrabble[26] = { //equivalent array letter <=> value at the Scrabble
         1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10
@@ -13,7 +12,7 @@ WINDOW* gameInput(struct NodeTrie* dico, char* userInput, char* mainDeck, int ma
 void drawDeck(int row, int col, char deck[], int size, char* label);
 void drawLine(int row, int col, int length);
 void eraseLine(int row, int col, int length);
-void playGame(struct NodeTrie* newDico, int uGameScore, int cGameScore, bool end);
+void playGame(struct NodeTrie* dico, int uGameScore, int cGameScore);
 
 void drawDeck(int row, int col, char deck[], int size, char* label) {
     if(size == 0){
@@ -70,7 +69,7 @@ WINDOW* gameInput(struct NodeTrie* dico, char* userInput, char* mainDeck, int ma
         // Rafraîchir l'écran
         mvprintw(0, 1, "- Press F1 to get the answer -");
         int ch1 = getch();
-        if(ch1 == KEY_F(1)){ //User want the answer
+        if(ch1 == 112){ //User want the answer
             memset(userInput, 0, userInputLength);
             return inputWin;
         }
@@ -126,117 +125,133 @@ WINDOW* gameInput(struct NodeTrie* dico, char* userInput, char* mainDeck, int ma
     return inputWin;
 }
 
-void playGame(struct NodeTrie* newDico, int uGameScore, int cGameScore, bool end) {
-    // NCurse init
-    initscr();
-    cbreak();
-    noecho();
-    curs_set(FALSE);
-    keypad(stdscr, TRUE);
-    //Window related definition
-    int maxRow, maxCol;
-    getmaxyx(stdscr, maxRow, maxCol);
-    int inputTextRow = maxRow - 2;
-    int inputTextCol = 0;
-    int centerCol = (maxCol - DECK_SIZE * 4) / 2;
+void playGame(struct NodeTrie* dico, int uGameScore, int cGameScore) {
+        // NCurse init
+        initscr();
+        cbreak();
+        noecho();
+        curs_set(FALSE);
+        keypad(stdscr, TRUE);
 
-    //Init dico
-    struct NodeTrie* dico;
-    if(newDico == NULL){
-        dico = createDico("dicoFR.txt");
-        if(dico == NULL){
-            printf("Error openning the file!");
-            return;
+        //Window related definition
+        int maxRow, maxCol = 0;
+        getmaxyx(stdscr, maxRow, maxCol);
+        int inputTextRow = maxRow - 2;
+        int inputTextCol = 0;
+        int centerCol = (maxCol - DECK_SIZE * 4) / 2;
+
+        //Score related definition
+        char userInput[256] = ""; // input's buffer
+        char computerWord[DECK_SIZE + 1] = "";
+        char mainDeck[DECK_SIZE] = "";
+        char currentWord[DECK_SIZE] = "";
+
+        char uGameScoreChar[2] = "";
+        char cGameScoreChar[2] = "";
+        char userScore[2] = "";
+        char computerScore[2] = "";
+
+        int *wordedDeck = 0;
+
+        int valueUserWord = 0;
+        int valueComputerWord = 0;
+        unsigned int userLen = 0;
+        unsigned int computerLen = 0;
+        //LOOP
+        while(1){
+
+        //Choose the deck
+        pickLetters(mainDeck);
+
+        sprintf(uGameScoreChar, "%d", uGameScore);
+        sprintf(cGameScoreChar, "%d", cGameScore);
+        uGameScoreChar[1] = '\0';
+        cGameScoreChar[1] = '\0';
+        // Draws computer's label
+        clear();
+        mvprintw(4, centerCol, "Ordinateur");
+        drawLine(5, centerCol, 10);
+        // Draws main deck label
+        mvprintw(9, centerCol, "Tirage");
+        toUpperString(mainDeck);
+        drawDeck(10, centerCol, mainDeck, DECK_SIZE, "Tirage");
+        // Draws user's label
+        mvprintw(17, centerCol, "Vous");
+        drawLine(18, centerCol, 10);
+
+        //Input text
+        mvprintw(inputTextRow, inputTextCol, "Entrer votre mot:");
+        refresh();
+
+
+        //Fills the computer's answer
+        wordedDeck = wordToArray(mainDeck);
+            WINDOW *inputWin = gameInput(dico, userInput, mainDeck, maxRow, maxCol, inputTextRow, inputTextCol, centerCol,uGameScoreChar, cGameScoreChar); //takes the user's input and checks its validity
+            findLongestWordInTrie(dico, wordedDeck, currentWord, computerWord, dico);
+        free(wordedDeck);
+
+        //Score values
+        valueUserWord = valueOfWord(userInput);
+        valueComputerWord = valueOfWord(computerWord);
+        sprintf(userScore, "%d", valueUserWord);
+        sprintf(computerScore, "%d", valueComputerWord);
+        userScore[1] = '\0';
+        computerScore[1] = '\0';
+        userLen = strlen(userInput);
+        computerLen = strlen(computerWord);
+
+        //Format user's output
+        eraseLine(18, centerCol, 10);
+        toUpperString(userInput);
+        drawDeck(15, centerCol, userInput, userLen, "Vous");
+        mvprintw(16, centerCol + 20, "%s%s%s", "Your score: ", userScore, "pts");
+
+        //Format computer's output
+        eraseLine(5, centerCol, 10);
+        toUpperString(computerWord);
+        drawDeck(5, centerCol, computerWord, computerLen, "Ordinateur");
+        mvprintw(6, centerCol + 20, "%s%s%s", "Computer's score: ", computerScore, "pts");
+        //Updates scores
+        if (valueUserWord >= valueComputerWord) {
+            uGameScore++;
+        } else cGameScore++;
+
+        //Ask for replay or not
+        int chend = 0;
+        mvprintw(20, centerCol, "%s", "Replay? (y/n)");
+        refresh();
+        while (chend != 121 || chend != 110) { //ASCII(y) = 121 ; ASCII(n) = 110
+            chend = getch();
+            if (chend == 121) {
+                wclear(inputWin);
+                delwin(inputWin);
+                memset(userInput, 0, MAX_BUFFER);
+                memset(uGameScoreChar, 0, 2);
+                memset(cGameScoreChar, 0, 2);
+                memset(userScore, 0, 2);
+                memset(computerScore, 0, 2);
+                memset(computerWord, 0, DECK_SIZE+1);
+                memset(currentWord, 0, DECK_SIZE);
+                memset(mainDeck, 0, DECK_SIZE);
+                clear();
+                break;
+            } else if (chend == 110) {
+                delwin(inputWin);
+                endwin();
+                return;
+            }
         }
     }
-    char userInput[256] = ""; // input's buffer
-    char computerWord[DECK_SIZE+1] = "";
-    char mainDeck[DECK_SIZE] = "";
-    pickLetters(mainDeck);
-    char currentWord[DECK_SIZE] = "";
-
-    //Prints the scores
-    char uGameScoreChar[2] = "";
-    char cGameScoreChar[2] = "";
-    sprintf(uGameScoreChar, "%d", uGameScore);
-    sprintf(cGameScoreChar, "%d", cGameScore);
-    uGameScoreChar[1] = '\0';
-    cGameScoreChar[1] = '\0';
-
-    // Draws computer's label
-    clear();
-    mvprintw(4, centerCol, "Ordinateur");
-    drawLine(5, centerCol, 10);
-    // Draws main deck label
-    mvprintw(9, centerCol, "Tirage");
-    toUpperString(mainDeck),
-    drawDeck(10, centerCol, mainDeck, DECK_SIZE, "Tirage");
-    // Draws user's label
-    mvprintw(17, centerCol, "Vous");
-    drawLine(18, centerCol, 10);
-
-    //Input text
-    mvprintw(inputTextRow, inputTextCol, "Entrer votre mot:");
-    refresh();
-
-    // Draw the deck
-    int* wordedDeck = wordToArray(mainDeck);
-    WINDOW* inputWin = gameInput(dico, userInput, mainDeck, maxRow, maxCol, inputTextRow, inputTextCol, centerCol, uGameScoreChar, cGameScoreChar);
-    findLongestWordInTrie(dico, wordedDeck, currentWord, computerWord, dico);
-    free(wordedDeck);
-    //Score init value
-    char userScore[2] = "";
-    char computerScore[2] = "";
-    int valueUserWord = valueOfWord(userInput);
-    int valueComputerWord = valueOfWord(computerWord);
-    sprintf(userScore, "%d", valueUserWord);
-    sprintf(computerScore, "%d", valueComputerWord);
-    userScore[1] = '\0';
-    computerScore[1] = '\0';
-    unsigned int userLen = strlen(userInput);
-    unsigned int computerLen = strlen(computerWord);
-
-    //Format user's output
-    eraseLine(18, centerCol, 10);
-    toUpperString(userInput);
-    drawDeck(15, centerCol, userInput, userLen,"Vous");
-    mvprintw(16, centerCol + 20, "%s%s%s", "Your score: ", userScore, "pts");
-
-    //Format computer's output
-    eraseLine(5, centerCol, 10);
-    toUpperString(computerWord);
-    drawDeck(5, centerCol, computerWord, computerLen, "Ordinateur");
-    mvprintw(6, centerCol + 20, "%s%s%s", "Computer's score: ", computerScore, "pts");
-    if(valueUserWord >= valueComputerWord){
-        uGameScore++;
-    } else cGameScore++;
-
-    //Ask for replay or not
-    int chend = 0;
-    mvprintw(20, centerCol, "%s", "Replay? (y/n)");
-    refresh();
-    while(chend != 121  || chend != 110){ //ASCII(y) = 121 ; ASCII(n) = 110
-        chend = getch();
-        if(chend == 121){
-            deleteNodeTrie(&dico);
-            delwin(inputWin);
-            playGame(dico, uGameScore, cGameScore, false);
-        }
-        else if(chend == 110){
-            deleteNodeTrie(&dico);
-            delwin(inputWin);
-            clear();
-            return;
-        }
-    }
-
 }
 
 int main(){
+
+    struct NodeTrie* dico = createDico("dicoFR.txt");
     int uGameScore = 0;
     int cGameScore = 0;
-    playGame(NULL, uGameScore, cGameScore, false);
-    endwin();
+    playGame(dico, uGameScore, cGameScore);
+    deleteNodeTrie(&dico);
+
     return 0;
 }
 

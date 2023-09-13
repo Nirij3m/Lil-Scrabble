@@ -5,7 +5,7 @@
 #ifndef LIL_SCRABBLE_NODETRIE_H
 #define LIL_SCRABBLE_NODETRIE_H
 #define MAX_SIZE 26
-#define MAX_BUFFER 326
+#define MAX_BUFFER 256
 
 #include <stdbool.h>
 #include <string.h>
