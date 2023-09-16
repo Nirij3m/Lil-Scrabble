@@ -1,7 +1,7 @@
 
 #include<scrabble.h>
 #include <ncurses.h>
-
+#include <openacc.h>
 
 int valueScrabble[26] = { //equivalent array letter <=> value at the Scrabble
         1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10
@@ -15,16 +15,21 @@ void eraseLine(int row, int col, int length);
 void playGame(struct NodeTrie* dico, int uGameScore, int cGameScore);
 
 void drawDeck(int row, int col, char deck[], int size, char* label) {
+    mvprintw(row+3, col-7, "points:");
     if(size == 0){
         strcpy(deck, "LOOSER");
         size = 6;
     }
     int i;
     for (i = 0; i < size; i++) {
+        char charInt[2] = "";
+        sprintf(charInt, "%d", valueScrabble[deck[i] - 'A']);
+        charInt[1] = '\0';
         mvaddch(row, col + i * 2, ACS_ULCORNER);    // Coin supérieur gauche du rectangle
         mvaddch(row, col + i * 2 + 1, ACS_HLINE);   // Ligne horizontale du rectangle
         mvaddch(row + 1, col + i * 2, ACS_VLINE);   // Ligne verticale gauche du rectangle
         mvaddch(row + 1, col + i * 2 + 1, deck[i]); // Lettre au milieu du rectangle
+        mvprintw(row + 3, col + i * 2 + 1, "%c", charInt[0]); //Valeur de la lettre
         mvaddch(row + 2, col + i * 2, ACS_LLCORNER);  // Coin inférieur gauche du rectangle
         mvaddch(row + 2, col + i * 2 + 1, ACS_HLINE);// Ligne horizontale du rectangle
         if (i == size - 1) {
@@ -34,7 +39,7 @@ void drawDeck(int row, int col, char deck[], int size, char* label) {
         }
 
     }
-    mvprintw(row - 1, col, label); // Afficher l'étiquette au-dessus du deck
+    mvprintw(row - 1, col, label); // Print the label upon the deck
 }
 
 void drawLine(int row, int col, int length) {
@@ -69,6 +74,7 @@ WINDOW* gameInput(struct NodeTrie* dico, char* userInput, char* mainDeck, int ma
         // Rafraîchir l'écran
         mvprintw(0, 1, "- Press F1 to get the answer -");
         int ch1 = getch();
+
         if(ch1 == KEY_F(1)){ //User want the answer
             memset(userInput, 0, userInputLength);
             return inputWin;
@@ -167,17 +173,17 @@ void playGame(struct NodeTrie* dico, int uGameScore, int cGameScore) {
         cGameScoreChar[2] = '\0';
         // Draws computer's label
         clear();
-        mvprintw(4, centerCol, "Ordinateur");
+        mvprintw(4, centerCol, "Computer");
         drawLine(5, centerCol, 10);
         // Draws main deck label
         mvprintw(9, centerCol, "Tirage");
         toUpperString(mainDeck);
-        drawDeck(10, centerCol, mainDeck, DECK_SIZE, "Tirage");
+        drawDeck(10, centerCol, mainDeck, DECK_SIZE, "Draw");
         // Draws user's label
         mvprintw(17, centerCol, "Vous");
         drawLine(18, centerCol, 10);
         //Input text
-        mvprintw(inputTextRow, inputTextCol, "Entrer votre mot:");
+        mvprintw(inputTextRow, inputTextCol, "Enter your word:");
         refresh();
 
         //Fills the computer's answer
@@ -201,13 +207,13 @@ void playGame(struct NodeTrie* dico, int uGameScore, int cGameScore) {
         //Format user's output
         eraseLine(18, centerCol, 10);
         toUpperString(userInput);
-        drawDeck(15, centerCol, userInput, userLen, "Vous");
+        drawDeck(16, centerCol, userInput, userLen, "You");
         mvprintw(16, centerCol + 20, "%s%s%s", "Your score: ", userScore, "pts");
 
         //Format computer's output
         eraseLine(5, centerCol, 10);
         toUpperString(computerWord);
-        drawDeck(5, centerCol, computerWord, computerLen, "Ordinateur");
+        drawDeck(4, centerCol, computerWord, computerLen, "Computer");
         mvprintw(6, centerCol + 20, "%s%s%s", "Computer's score: ", computerScore, "pts");
         //Updates scores
         if (valueUserWord >= valueComputerWord) {
@@ -216,9 +222,10 @@ void playGame(struct NodeTrie* dico, int uGameScore, int cGameScore) {
 
         //Ask for replay or not
         int chend = 0;
-        mvprintw(20, centerCol, "%s", "Replay? (y/n)");
+        mvprintw(22, centerCol, "%s", "Replay? (y/n)");
+        //mvprintw(23, centerCol, "%s", "Lookup word's definition?: (Y/N)");
         refresh();
-        while (chend != 121 || chend != 110) { //ASCII(y) = 121 ; ASCII(n) = 110
+        while (chend != 121 || chend != 110) { //ASCII(y) = 121 ; ASCII(n) = 110 ASCII(Y) = 89 ; ASCII(N) = 78
             chend = getch();
             if (chend == 121) {
                 wclear(inputWin);
@@ -233,7 +240,13 @@ void playGame(struct NodeTrie* dico, int uGameScore, int cGameScore) {
                 memset(mainDeck, 0, DECK_SIZE);
                 clear();
                 break;
-            } else if (chend == 110) {
+            }
+            /*else if (chend == 89) {
+                char URL[256] = "";
+                sprintf(URL, "%s%s", "START https://www.google.com/search?q", computerWord);
+                system(URL);
+            }*/
+            else if (chend == 110 || chend == 78) {
                 delwin(inputWin);
                 endwin();
                 return;

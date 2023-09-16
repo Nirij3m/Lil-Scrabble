@@ -53,12 +53,13 @@ void shuffle(char* array, int length) {
 }
 
 char* pickLetters(char* deck){
-    char scrabbleAlphabet[93] = "AAAAAAAAABBCCDDDEEEEEEEEEEEEFFGGGHHIIIIIIIIIJKLLLMMNNNNNNOOOOOOOOPPQRRRRRRSSSSSSTTTTTTUUVWXYZ";
-    //shuffle(scrabbleAlphabet, 93);
-    srand(time(NULL));
+    char scrabbleAlphabet[100] = "AAAAAAAAABBCCDDEEEEEEEEEEEEEEEFFGGHHIIIIIIIIJKLLLLLMMMNNNNNNOOOOOOPPQRRRRRRSSSSSSTTTTTTUUUUUUVVWXYZ";
+    time_t t;
+    shuffle(scrabbleAlphabet, 100);
+    srand((unsigned) time(&t));
 
     for(int i = 0; i < DECK_SIZE; i++){
-        int r = rand() % 93; //93 to fit in the scrabbleAlphabet
+        int r = rand() % 100; //93 to fit in the scrabbleAlphabet
         deck[i] = tolower(scrabbleAlphabet[r]); //pick a random letter in the scrabbleAlphabet and put it in the deck
         //printf("%c", deck[i]);
     }

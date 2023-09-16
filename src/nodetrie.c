@@ -72,8 +72,8 @@ struct NodeTrie* createDico(char* dicoName){
 
     while(!feof(dico)){
         fgets(word, MAX_BUFFER, dico); //read line by line the dico
-        word[strlen(word)] = '\0';//remove the \n
-        word[strcspn(word, "\r")] = '\0'; //remove carriage return
+        word[strlen(word) - 1] = '\0';//remove the \n
+        //word[strcspn(word, "\r")] = '\0'; //remove carriage return (ONLY IN CLION DUNNO WHY)
         insertWord(trie, word);
     }
     fclose(dico);
