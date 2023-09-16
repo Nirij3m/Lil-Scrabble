@@ -1,5 +1,5 @@
 # Unscrabble
-A straightforward CLI (Linux) game based on the real Scrabble that challenges you to compose the best word given a set of letters. Each word's value and repartition is calculated via 
+A straightforward TUI (Linux) game based on the real Scrabble that challenges you to compose the best word given a set of letters. Each word's value and repartition is calculated via 
 the official Scrabble rules, don't hesitate to check the letter's value to maximize your winning chance !
 
 ## How to install and play
