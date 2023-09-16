@@ -12,12 +12,12 @@ sudo git clone https://github.com/Nirij3m/Unscrabble.git
 cd ~/Unscrabble
 ```
 - Give to the binary file the perms to execute
-  ```bash
-  sudo chmod +x ./unscrabble
+```bash
+sudo chmod +x ./unscrabble
   ```
 - Run the game !
-  ```bash
-  ./unscrabble
+```bash
+ ./unscrabble
   ```
   tips: You can at all time CTRL+C to exit the program.
 
